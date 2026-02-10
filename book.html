@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Message by Roy.Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #d00000;
+            --paper-color: #fdfdfd;
+            --shadow: rgba(0, 0, 0, 0.2);
+            --grid-color: rgba(208, 0, 0, 0.15); /* Light red for grid lines */
+            --bg-color: #fff0f3; /* Very light pink background */
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            perspective: 1500px;
+            font-family: "Poppins", sans-serif;
+            overflow: hidden;
+
+            /* --- NEW GRID BACKGROUND --- */
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px; /* Size of grid squares */
+            animation: moveGrid 20s linear infinite;
+        }
+
+        /* Grid Animation: Dheere se diagonally move karega */
+        @keyframes moveGrid {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        /* The Book Container */
+        .book {
+            position: relative;
+            display: flex;
+            margin: auto;
+            width: 40vmin;
+            height: 55vmin;
+            pointer-events: none;
+            transform-style: preserve-3d;
+            transition: translate 1s, rotate 1s;
+            translate: calc(min(var(--c), 1) * 50%) 0%;
+            rotate: 1 0 0 15deg; 
+        }
+
+        .book:hover {
+            rotate: 1 0 0 5deg; 
+        }
+
+        .page {
+            --thickness: 5;
+            flex: none;
+            display: flex;
+            width: 100%;
+            height: 100%;
+            pointer-events: all;
+            user-select: none;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            transition: transform 1s, rotate 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            translate: calc(var(--i) * -100%) 0px 0px;
+            transform: translateZ(calc((var(--c) - var(--i) - 0.5) * 2px));
+            rotate: 0 1 0 calc(clamp(0, var(--c) - var(--i), 1) * -180deg);
+            cursor: pointer;
+        }
+
+        .front, .back {
+            position: relative;
+            flex: none;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background-color: var(--paper-color);
+            padding: 2rem; 
+            border: 1px solid rgba(0,0,0,0.05);
+            background-image: 
+                linear-gradient(90deg, rgba(0,0,0,0.03) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.03) 100%),
+                url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+
+        .back {
+            translate: -100% 0;
+            rotate: 0 1 0 180deg;
+        }
+
+        /* Cover Design */
+        .cover {
+            background: linear-gradient(135deg, #8e0e00, #1f1c18) !important;
+            color: #fff !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .cover h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(1.5rem, 3.5vmin, 3rem);
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        /* Content Styling */
+        h2 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary-red);
+            font-size: clamp(1.2rem, 2.5vmin, 2.5rem);
+            margin-bottom: 10px;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        p {
+            font-size: clamp(0.85rem, 1.5vmin, 1.2rem);
+            line-height: 1.5;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 3px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Page Numbering */
+        .front::after, .back::after {
+            position: absolute;
+            bottom: 1em;
+            font-size: 0.6em;
+            color: #999;
+        }
+        .front::after { right: 1em; content: counter(page) "."; }
+        .back::after { left: 1em; content: counter(page) "."; }
+
+        /* Floating Heart Particles */
+        .heart-particle {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+        }
+
+        .tap-hint {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(0,0,0,0.4);
+            font-size: 0.9rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 768px) {
+            body {
+                perspective: 1000px;
+                width: 100vw;
+                height: 100vh;
+            }
+            .book {
+                width: 54vw; 
+                height: 50vh;
+                rotate: 1 0 0 5deg;
+            }
+
+            body p{
+                 font-size: 9.5px;
+            }
+
+          img {
+            width: 100%;
+            height: 100%;
+            margin-right: 40px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 3px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+            .front, .back {
+                padding: 1.2rem;
+            }
+            .cover h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            p { font-size: 0.85rem; }
+
+            
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book" id="book">
+        <div class="page" style="--i: 0">
+            <div class="front cover">
+                <h1>A Message for You 🤍</h1>
+                <p style="color: rgba(255,255,255,0.7)">2026. Special Edition</p>
+                <p style="font-size: 0.7em; margin-top: auto;">Developed by Vroy</p>
+            </div>
+            <div class="back">
+            <h2>Happy Valentine's Day My Love❤️🥰🌹</h2>
+<p>I’m always thankful to God that you’re in my life and I love you so much!!!</p>
+<p>You are beautiful in every way a person can be, beautiful in your thoughts (sometimes), beautiful in your spirit, and beautiful in your soul and very sexy of course!!!</p>
+
+            </div>
+        </div>
+
+        <div class="page" style="--i: 1">
+            <div class="front">
+           <h2>My Greatest Chapter 📖</h2>
+<p>Looking back, I realize that every step of our lives journey led us to each other and I wouldn’t change anything because I have you in my life.</p>
+<p>I am very grateful for your patience, your kindness, and your amazing love.</p>
+            </div>
+            <div class="back">
+                <img src="ben.jpeg" onerror="this.src='https://images.unsplash.com/photo-158568814500-bf0f8d125f46?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Memory" />
+            </div>
+        </div>
+
+        <div class="page" style="--i: 2">
+            <div class="front">
+               <h2>Better Than a Dream 💭</h2>
+           <p>I love that we choose each other everyday no matter what’s going on in our lives.</p>
+           <p>Thank you for being, my best friend, and the greatest love I will ever know. You’re the best mother and an amazing wife and I’m so proud of you in every way possible.</p>
+                <h3 style="text-align: center; color: #d00000; font-family: 'Dancing Script'; font-size: 2rem; margin-top: 20px;">Be Mine? 💍</h3>
+            </div>
+            <div class="back cover">
+                <h2>The End</h2>
+                <p style="color: white">No matter where life takes us next,<br> I know it will be wonderful because<br> I’ll be with you.</p>
+                <br><br>
+                <p style="text-align: center; color: #d00000; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-size: medium; margin-top: 20px;">Always your, Benjie.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="tap-hint">Tap the book to flip pages</div>
+
+    <script>
+        const book = document.getElementById('book');
+        const pages = document.querySelectorAll('.page');
+        let currentPage = 0;
+
+        book.style.setProperty("--c", 0);
+
+        pages.forEach((page, idx) => {
+            page.addEventListener("click", (evt) => {
+                const isBack = evt.target.closest(".back");
+                if (isBack) {
+                    currentPage = idx;
+                } else {
+                    currentPage = idx + 1;
+                }
+                book.style.setProperty("--c", currentPage);
+            });
+        });
+
+        function spawnHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            const icons = ['❤️', '💖', '💕', '🌸', '✨'];
+            heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = Math.random() * 1.5 + 1 + 'rem';
+            heart.style.animationDuration = Math.random() * 3 + 4 + 's';
+            heart.style.opacity = Math.random();
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+
+        setInterval(spawnHeart, 400);
+    </script>
+
+    <audio id="bg-music" loop>
+    <source src="Lordkez_-_Aweh.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // This script starts the music when the user clicks anywhere on the page
+    window.addEventListener('click', function() {
+        var audio = document.getElementById("bg-music");
+        audio.play();
+    }, { once: true });
+</script>
+</body>
+</html>
